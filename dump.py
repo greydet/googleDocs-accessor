@@ -20,12 +20,12 @@ import sys
 import spreadsheet
 
 def printUsageAndExit():
-    print 'python dump.py --user [username] -pw [password]'
+    print 'python dump.py --user [username] --pw [password]'
     sys.exit(2)
 
 # Parse command line options
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "s:w:", ["user=", "pw="])
+    opts, args = getopt.getopt(sys.argv[1:], "s:w:a:", ["user=", "pw="])
 except getopt.error, msg:
     printUsageAndExit()
 
@@ -33,6 +33,7 @@ user = ''
 pw = ''
 s = ''
 w = ''
+act = ''
 
 #Process options
 for o, a in opts:
@@ -44,6 +45,8 @@ for o, a in opts:
         s = a
     elif o == "-w":
         w = a
+    elif o == "-a":
+        act = a
 
 if user == '' or pw == '':
     printUsageAndExit()
@@ -67,5 +70,19 @@ if w == '':
             w = input
         print ''
 
-client.GetSpreadsheet(s).GetWorksheet(w).ListRows()
+while act == '':
+    input = raw_input('\nAction: ')
+    if hasattr(spreadsheet.Worksheet, input):
+        act = input
+
+if act == 'ListRows':
+    client.GetSpreadsheet(s).GetWorksheet(w).ListRows()
+elif act == 'PrintRow':
+    if len(args) == 1:
+        client.GetSpreadsheet(s).GetWorksheet(w).PrintRow(int(args[0]))
+    else:
+        print 'Error: Missing row index argument for the PrintRow action'
+elif act == 'PrintLastRow':
+    client.GetSpreadsheet(s).GetWorksheet(w).PrintLastRow()
+
 

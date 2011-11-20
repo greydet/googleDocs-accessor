@@ -27,6 +27,17 @@ class Worksheet:
         feed = self.client.gdata.GetListFeed(self.spreadsheet.key, self.key)
         self.client._PrintFeed(feed)
 
+    def PrintRow(self, i):
+        feed = self.client.gdata.GetListFeed(self.spreadsheet.key, self.key)
+        print '%s %s' % (feed.entry[i].title.text, feed.entry[i].content.text)
+
+    def PrintLastRow(self):
+        feed = self.client.gdata.GetListFeed(self.spreadsheet.key, self.key)
+        nbEntries = len(feed.entry)
+        i = nbEntries - 1
+        print '%s %s' % (feed.entry[i].title.text, feed.entry[i].content.text)
+
+
 class Spreadsheet:
     def __init__(self, client, feedEntry):
         self.feedEntry = feedEntry
