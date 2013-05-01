@@ -16,12 +16,32 @@
 
 import getopt
 import sys
+import gdata
 
 import spreadsheet
 
+actionList = ['toUpperFirst']
+
 def printUsageAndExit():
-    print 'python dump.py --user <username> --pw <password> [-s <spreadsheet>] [-w <worksheet>] [-a <action>]'
+    print 'python batchUpdate.py --user <username> --pw <password> [-s <spreadsheet>] [-w <worksheet>] [-a <action>]'
     sys.exit(2)
+#def
+
+def toUpperFirst():
+    global s
+    global w
+    global args
+    
+    request = client.GetSpreadsheet(s).GetWorksheet(w).GetRecords(args[0], args[1], args[2], args[3])
+    batchRequest = gdata.spreadsheet.SpreadsheetsCellsFeed()
+    for entry in request.entry:
+        if entry.cell.inputValue != None:
+            entry.cell.inputValue = entry.cell.inputValue.title()
+            batchRequest.AddUpdate(entry)
+        #if
+    #for
+    client._PrintFeed(batchRequest)
+    client.gdata.ExecuteBatch(batchRequest, request.GetBatchLink().href)
 #def
 
 # Parse command line options
@@ -83,27 +103,13 @@ if w == '':
 while act == '':
     input = raw_input('\nAction: ')
     args = input.split(' ')
-    if hasattr(spreadsheet.Worksheet, args[0]):
+    if args[0] in actionList:
         act = args[0]
         args.pop(0)
     #if
 #while
 
-if act == 'ListRows':
-    client.GetSpreadsheet(s).GetWorksheet(w).ListRows()
-elif act == 'PrintRow':
-    if len(args) == 1:
-        client.GetSpreadsheet(s).GetWorksheet(w).PrintRow(int(args[0]))
-    else:
-        print 'Error: Missing row index argument for the PrintRow action'
-    #if
-elif act == 'PrintLastRow':
-    client.GetSpreadsheet(s).GetWorksheet(w).PrintLastRow()
-elif act == 'PrintCells':
-    if len(args) == 4:
-        client.GetSpreadsheet(s).GetWorksheet(w).PrintCells(args[0], args[1], args[2], args[3])
-    else:
-        print 'Usage: PrintCells(column, firstRow, lastRow)'
-    #if
+if act == actionList[0]:
+    toUpperFirst()
 #if
 
